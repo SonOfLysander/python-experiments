@@ -24,12 +24,13 @@ def load_page(page_url):
 
 def download_file(url):
     local_filename = url.split('/')[-1]
-    print("Downloading " + url + " to " + local_filename)
     if path.isfile(local_filename):
+        print("Resuming " + url + " to " + local_filename)
         resume_header = {'Range': 'bytes=%d-' + str(path.getsize(local_filename))}
         r = requests.get(url, stream=True, headers=resume_header)
         write_mode = 'ab'
     else:
+        print("Downloading " + url + " to " + local_filename)
         r = requests.get(url, stream=True)
         write_mode = 'wb'
     with open(local_filename, write_mode) as f:
