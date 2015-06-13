@@ -1,5 +1,9 @@
 __author__ = 'paulbaker'
 
+'''
+wingif.py aka: My Lazy Meme Getter
+'''
+
 import sys
 from os import path
 import os
@@ -74,5 +78,5 @@ if __name__ == '__main__':
     for image in images:
         download_file(image)
     current_dir = os.getcwd()
+    # Open in incognito mode. I hate litering my broswer history with file urls.
     os.system('google-chrome-stable --incognito ' + 'file:///' + generate_html(current_dir))
-    # webbrowser.open()
