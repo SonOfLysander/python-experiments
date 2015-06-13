@@ -9,7 +9,6 @@ from lxml import html
 import re
 
 
-
 def load_page(page_url):
     print('Parsing ' + page_url)
     r = requests.get(page_url)
@@ -52,7 +51,8 @@ def generate_html(directory):
     with open(html_file, 'w', encoding='UTF-8') as f:
         f.write('<html>\n')
         f.write('\t<body>\n')
-        for image_path in get_files(current_dir)    :
+        for image_path in get_files(current_dir):
+            f.write('\t\t' + image_path.split('/')[-1] + '<br />')
             f.write('\t\t')
             if image_path.endswith('.webm'):
                 f.write('<video muted controls loop width="500">')
