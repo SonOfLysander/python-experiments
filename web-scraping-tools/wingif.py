@@ -25,8 +25,13 @@ def load_page(page_url):
     return [i.replace(r'//', r'http://') for i in image_links]
 
 
-def download_file(url):
-    local_filename = url.split('/')[-1]
+def download_file(url, download_directory=None):
+    if download_directory is None:
+        local_filename = url.split('/')[-1]
+    else:
+        local_filename = download_directory + '/' + url.split('/')[-1]
+    if not os.path.exists(os.path.dirname(local_filename)):
+        os.makedirs(os.path.dirname(local_filename))
     if path.isfile(local_filename):
         print("Resuming " + url + " to " + local_filename)
         resume_header = {'Range': 'bytes=%d-' + str(path.getsize(local_filename))}
@@ -55,15 +60,16 @@ def generate_html(directory):
     with open(html_file, 'w', encoding='UTF-8') as f:
         f.write('<html>\n')
         f.write('\t<body>\n')
-        for image_path in get_files(current_dir):
-            f.write('\t\t' + image_path.split('/')[-1] + '<br />')
+        for image_path in get_files(directory):
+            filename = image_path.split('/')[-1]
+            f.write('\t\t' + filename + '<br />')
             f.write('\t\t')
             if image_path.endswith('.webm'):
                 f.write('<video muted controls loop width="500">')
-                f.write('<source src="' + directory + '/' + image_path + '" type="video/mp4">')
+                f.write('<source src="' + filename + '" type="video/mp4">')
                 f.write('</video>')
             else:
-                f.write('<img src="' + directory + '/' + image_path + '">')
+                f.write('<img src="' + filename + '">')
             f.write('<br />\n')
         f.write('\t</body>\n')
         f.write('</html>')
@@ -71,12 +77,14 @@ def generate_html(directory):
 
 
 if __name__ == '__main__':
-    images = set()
+    images = {}
     for arg in sys.argv[1:]:
+        sub_set = set()
         for link in load_page(arg):
-            images.add(link)
-    for image in images:
-        download_file(image)
-    current_dir = os.getcwd()
-    # Open in incognito mode. I hate litering my broswer history with file urls.
-    os.system('google-chrome-stable --incognito ' + 'file:///' + generate_html(current_dir))
+            sub_set.add(link)
+        images[arg.split('/')[-1]] = sub_set
+    for folder in images.keys():  # key, value in images:
+        for image in images[folder]:
+            download_file(url=image, download_directory=folder)
+        # Open in incognito mode. I hate littering my browser history with file urls.
+        os.system('google-chrome-stable --incognito ' + 'file:///' + os.getcwd() + '/' + generate_html(folder))
